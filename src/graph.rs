@@ -1,33 +1,40 @@
-use std::collections::{HashMap, VecDeque, HashSet};
-use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::path::Path;
 
+#[derive(Debug)]
 pub struct Graph {
     adjacency_list: HashMap<u32, Vec<u32>>,
 }
 
 impl Graph {
-    pub fn new(file_path: &Path) -> io::Result<Self> {
-        let file = File::open(file_path)?;
-        let reader = BufReader::new(file);
-        let mut adjacency_list = HashMap::new();
+    pub fn new(file_path: &Path) -> Result<Self, String> {
+        let contents = match std::fs::read_to_string(file_path) {
+            Ok(contents) => contents,
+            Err(err) => return Err(format!("Failed to read file: {}", err)),
+        };
 
-        for line in reader.lines() {
-            let line = line?;
+        let mut adjacency_list = HashMap::new();
+        for line in contents.lines() {
             if !line.starts_with('#') {
                 let parts: Vec<&str> = line.split('\t').collect();
                 if parts.len() == 2 {
-                    let from: u32 = parts[0].parse().expect("Invalid node id");
-                    let to: u32 = parts[1].parse().expect("Invalid node id");
+                    let from: u32 = match parts[0].parse() {
+                        Ok(num) => num,
+                        Err(_) => return Err("Invalid node id".to_string()),
+                    };
+                    let to: u32 = match parts[1].parse() {
+                        Ok(num) => num,
+                        Err(_) => return Err("Invalid node id".to_string()),
+                    };
                     adjacency_list.entry(from).or_insert(vec![]).push(to);
                 }
             }
         }
+
         Ok(Graph { adjacency_list })
     }
 
-    pub fn bfs(&self, start: u32, goal: u32) -> Option<Vec<u32>> {
+    pub fn bfs_shortest_path(&self, start: u32, goal: u32) -> Option<Vec<u32>> {
         let mut queue = VecDeque::new();
         let mut visited = HashSet::new();
         let mut path = HashMap::new();
@@ -53,31 +60,6 @@ impl Graph {
         None
     }
 
-    pub fn dfs(&self, start: u32, goal: u32) -> Option<Vec<u32>> {
-        let mut stack = vec![start];
-        let mut visited = HashSet::new();
-        let mut path = HashMap::new();
-
-        visited.insert(start);
-        path.insert(start, None);
-
-        while let Some(current) = stack.pop() {
-            if current == goal {
-                return Some(self.construct_path(start, goal, &path));
-            }
-
-            if let Some(neighbors) = self.adjacency_list.get(&current) {
-                for &neighbor in neighbors {
-                    if visited.insert(neighbor) {
-                        stack.push(neighbor);
-                        path.insert(neighbor, Some(current));
-                    }
-                }
-            }
-        }
-        None
-    }
-
     fn construct_path(&self, start: u32, goal: u32, predecessors: &HashMap<u32, Option<u32>>) -> Vec<u32> {
         let mut path = Vec::new();
         let mut current = goal;
@@ -91,5 +73,13 @@ impl Graph {
         }
         path.reverse();
         path
+    }
+
+    pub fn get_adjacency_list(&self) -> &HashMap<u32, Vec<u32>> {
+        &self.adjacency_list
+    }
+
+    pub fn set_adjacency_list(&mut self, adjacency_list: HashMap<u32, Vec<u32>>) {
+        self.adjacency_list = adjacency_list;
     }
 }
