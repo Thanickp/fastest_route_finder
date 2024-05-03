@@ -3,7 +3,7 @@ use std::path::Path;
 
 #[derive(Debug)]
 pub struct Graph {
-    adjacency_list: HashMap<u32, Vec<u32>>,
+    pub(crate) adjacency_list: HashMap<u32, Vec<u32>>,
 }
 
 impl Graph {

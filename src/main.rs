@@ -129,3 +129,41 @@ fn get_input() -> String {
     io::stdin().read_line(&mut input).expect("Failed to read line");
     input
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use maplit::hashmap;
+
+    #[test]
+fn test_bfs_shortest_path() {
+    // Create a sample graph
+    let graph = Graph {
+        adjacency_list: hashmap![
+            1 => vec![2, 3],
+            2 => vec![4, 5],
+            3 => vec![6],
+            4 => vec![],
+            5 => vec![6],
+            6 => vec![],
+        ],
+    };
+
+        // Test shortest path from node 1 to node 6
+        let start_node = 1;
+        let end_node = 6;
+        let expected_path = vec![1, 3, 6];
+        assert_eq!(graph.bfs_shortest_path(start_node, end_node), Some(expected_path));
+
+        // Test shortest path from node 2 to node 6
+        let start_node = 2;
+        let end_node = 6;
+        let expected_path = vec![2, 5, 6];
+        assert_eq!(graph.bfs_shortest_path(start_node, end_node), Some(expected_path));
+
+        // Test when there is no path from node 4 to node 6
+        let start_node = 4;
+        let end_node = 6;
+        assert_eq!(graph.bfs_shortest_path(start_node, end_node), None);
+    }
+}

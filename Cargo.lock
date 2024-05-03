@@ -6,6 +6,7 @@ version = 3
 name = "fastest_route_finder"
 version = "0.1.0"
 dependencies = [
+ "maplit",
  "serde",
  "serde_json",
 ]
@@ -15,6 +16,12 @@ name = "itoa"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
+
+[[package]]
+name = "maplit"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e2e65a1a2e43cfcb47a895c4c8b10d1f4a61097f9f254f183aee60cad9c651d"
 
 [[package]]
 name = "proc-macro2"
